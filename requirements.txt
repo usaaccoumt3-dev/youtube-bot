@@ -1,0 +1,6 @@
+groq
+requests
+gTTS
+moviepy
+Pillow
+numpy
