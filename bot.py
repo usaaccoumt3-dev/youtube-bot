@@ -69,23 +69,29 @@ def is_duplicate(topic, used_list):
 # NEWS
 # ═══════════════════════════════════
 def get_trending_news():
-    print("📰 Fetching trending news...")
+    print("📰 Fetching financial niche news...")
     try:
+        # Finance se related keywords ka filter
+        finance_keywords = ["economy", "inflation", "interest rates", "property", "market", "bank", "invest"]
         url = (
-            f"https://newsapi.org/v2/top-headlines"
-            f"?category=business&language=en&pageSize=10"
+            f"https://newsapi.org/v2/everything"
+            f"?q=European+economy+OR+UK+finance+OR+Germany+market"
+            f"&language=en&sortBy=publishedAt&pageSize=5"
             f"&apiKey={NEWS_API_KEY}"
         )
-        r        = requests.get(url, timeout=15)
+        r = requests.get(url, timeout=15)
         articles = [a for a in r.json().get("articles", []) if a.get("title")]
-        if articles:
-            headlines = [a["title"] for a in articles[:5]]
-            combined  = " | ".join(headlines[:3])
-            print(f"✅ News: {combined[:80]}...")
-            return combined
+        
+        # Sirf relevant headlines select karo
+        for article in articles:
+            title = article["title"].lower()
+            if any(k in title for k in finance_keywords):
+                print(f"✅ Finance News found: {article['title'][:80]}...")
+                return article["title"]
     except Exception as e:
         print(f"⚠️ News error: {e}")
     return None
+
 
 # ═══════════════════════════════════
 # GROQ TOPIC
