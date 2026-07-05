@@ -2,7 +2,8 @@ name: YouTube Bot
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    # 01:00 UTC = 06:00 AM PKT
+    - cron: '0 1 * * *'
   workflow_dispatch:
 
 jobs:
