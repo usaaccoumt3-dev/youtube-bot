@@ -25,7 +25,9 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu
 
       - name: Install Dependencies
-  run: pip install gtts pillow moviepy pytrends requests
+        run: |
+          pip install -r requirements.txt
+          pip install gtts pillow moviepy pytrends requests
 
       - name: Run bot
         env:
@@ -43,3 +45,4 @@ jobs:
             thumbnail.jpg
             metadata.txt
           retention-days: 7
+          
