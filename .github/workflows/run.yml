@@ -24,8 +24,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg fonts-dejavu
 
-      - name: Install Python deps
-        run: pip install -r requirements.txt
+      - name: Install Dependencies
+  run: pip install gtts pillow moviepy pytrends requests
 
       - name: Run bot
         env:
