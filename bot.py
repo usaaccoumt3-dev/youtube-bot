@@ -457,7 +457,7 @@ def parse_script(full_text):
 # ════════════════════════════════════════
 def install_pydub():
     try:
-       from pydub import AudioSegment
+        from pydub import AudioSegment
         return True
     except ImportError:
         print("📦 Installing pydub...")
@@ -468,7 +468,6 @@ def install_pydub():
             return True
         except Exception:
             return False
-
 def generate_audio(script, filename="audio.mp3"):
     print("🎙️ Generating news anchor voiceover (zero gaps)...")
 
