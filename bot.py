@@ -135,7 +135,7 @@ def is_finance_related(query):
 def get_trends_rising(country_code, seed):
     try:
         from pytrends.request import TrendReq
-        pt = TrendReq(hl='en-US', tz=0, timeout=(15, 30), retries=2, backoff_factor=1.0)
+        pt = TrendReq(hl='en-US', tz=0, timeout=(5, 30), retries=0, backoff_factor=1.0)
         time.sleep(random.uniform(2.0, 4.0))
         pt.build_payload([seed], timeframe='now 1-d', geo=country_code)
         related = pt.related_queries()
