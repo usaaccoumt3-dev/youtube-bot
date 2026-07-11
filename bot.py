@@ -468,6 +468,7 @@ def install_pydub():
             return True
         except Exception:
             return False
+
 def generate_audio(script, filename="audio.mp3"):
     print("🎙️ Generating news anchor voiceover (zero gaps)...")
 
@@ -961,3 +962,4 @@ def main():
     print(f"{'═'*55}\n")
 
 main()
+       
