@@ -27,7 +27,7 @@ jobs:
       - name: Install Python Dependencies
         run: |
           pip install --upgrade pip
-          pip install gtts pillow moviepy pytrends requests pydub requests-cache
+          pip install pytrends==4.8.0 gtts pillow moviepy requests pydub requests-cache
 
       - name: Run Bot
         env:
