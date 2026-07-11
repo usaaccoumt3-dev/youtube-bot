@@ -1,6 +1,6 @@
-groq
-requests
-gTTS
+gtts
+pillow
 moviepy
-Pillow
-numpy
+pytrends
+requests
+pydub
