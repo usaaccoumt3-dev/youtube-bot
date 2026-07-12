@@ -22,12 +22,13 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
+          # espeak zaroori hai pyttsx3 ke liye
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation espeak
 
       - name: Install Python Dependencies
         run: |
           pip install --upgrade pip
-          pip install --force-reinstall pytrends==4.8.0 urllib3==1.26.15 gtts pillow moviepy requests pydub requests-cache
+          pip install --force-reinstall pytrends==4.8.0 urllib3==1.26.15 pyttsx3 pillow moviepy requests pydub requests-cache
 
       - name: Run Bot
         env:
@@ -47,4 +48,3 @@ jobs:
             metadata.txt
             used_topics.txt
           retention-days: 3
-          
