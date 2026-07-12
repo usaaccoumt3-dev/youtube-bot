@@ -1,5 +1,5 @@
 import os, time, requests, random, re
-from gtts import gTTS
+import pyttsx3
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 from moviepy import *
 
