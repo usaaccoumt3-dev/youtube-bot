@@ -913,6 +913,10 @@ UK       : 17:00-17:30 BST
 """
     with open("metadata.txt", "w", encoding="utf-8") as f:
         f.write(content)
+        with open("current_topic.txt", "w", encoding="utf-8") as sync_file:
+        sync_file.write(topic)
+    print("📄 Topic synced for Shorts")
+
     print("📄 Metadata saved")
 
 # ════════════════════════════════════════
