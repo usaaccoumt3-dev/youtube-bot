@@ -1,6 +1,4 @@
-
 import os, time, requests, random, re
-import pyttsx3
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 from moviepy.editor import *
 from moviepy.video.fx import all as vfx
@@ -11,12 +9,12 @@ from gtts import gTTS
 # ════════════════════════════════════════
 # CONFIG
 # ════════════════════════════════════════
-GROQ_API_KEY     = os.environ["GROQ_API_KEY"]
-PEXELS_API_KEY   = os.environ["PEXELS_API_KEY"]
-NEWS_API_KEY     = os.environ["NEWS_API_KEY"]
+GROQ_API_KEY     = os.environ.get("GROQ_API_KEY", "")
+PEXELS_API_KEY   = os.environ.get("PEXELS_API_KEY", "")
+NEWS_API_KEY     = os.environ.get("NEWS_API_KEY", "")
 
 CHANNEL_NAME     = "Smart Money Tips"
-TARGET_MARKETS   = "UK, Germany, France, Switzerland"
+TARGET_MARKETS   = "UK, Germany, France, Switzerland, Canada"
 SCENE_DURATION   = 6
 VIDEO_FPS        = 24
 VIDEO_SIZE_LONG  = (1280, 720)
@@ -28,9 +26,10 @@ TREND_COUNTRIES = {
     "DE": "Germany",
     "FR": "France",
     "CH": "Switzerland",
+    "CA": "Canada",
 }
 
-# Updated FINANCE_SEEDS for more curiosity-driven topics
+# Curiosity-driven seeds targeting viral/shocking finance news
 FINANCE_SEEDS = [
     "financial scam", "bank fraud", "young millionaire", "company collapse",
     "investment disaster", "crypto crash", "stock market manipulation",
@@ -100,7 +99,7 @@ SHOCK_TOPIC_TEMPLATES = [
 SHOCK_VARS = {
     'amount':  ['50,000','100,000','250,000','1 Million','500,000','5 Million','10 Million','50 Million'],
     'time':    ['6 Months','1 Year','18 Months','2 Years','3 Days','One Day','One Week'],
-    'city':    ['London','Berlin','Zurich','Munich','Frankfurt','Paris','Amsterdam','Dublin','Geneva'],
+    'city':    ['London','Berlin','Zurich','Munich','Frankfurt','Paris','Amsterdam','Dublin','Geneva','Toronto','Vancouver'],
     'country': ['UK','German','Swiss','French','European','Canadian','Dutch','Irish'],
     'x':       ['3','4','5','10','20','50'],
     'pct':     ['73','68','81','76','89','92','65','70'],
@@ -191,7 +190,7 @@ def research_google_trends():
         return None, {}
 
     all_rising   = {}
-    seeds_sample = random.sample(FINANCE_SEEDS, min(10, len(FINANCE_SEEDS))) # Increased sample size
+    seeds_sample = random.sample(FINANCE_SEEDS, min(10, len(FINANCE_SEEDS)))
     print(f"🌱 Seeds: {seeds_sample}")
     print(f"🌍 Countries: {list(TREND_COUNTRIES.keys())}")
 
@@ -275,7 +274,7 @@ def enrich_with_groq(raw_query, research_data, used_list):
         "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "user", "content":
             f"The Google Trend '{raw_query}' is rising in: {countries_str}.\n"
-            f"Transform this into ONE short, curiosity-driven YouTube finance title for UK, Germany, France, Switzerland audiences.\n"
+            f"Transform this into ONE short, curiosity-driven YouTube finance title for UK, Germany, France, Switzerland, Canada audiences.\n"
             f"Focus on creating a curiosity gap, avoiding overly dramatic clickbait. Max 58 characters.\n"
             f"Example: '19-Year-Old Made $1M in a Day: How?'\n"
             f"AVOID: {used_sample}\n"
@@ -294,7 +293,7 @@ def get_topic_groq_fallback(used_list):
     data = {
         "model": "llama-3.3-70b-versatile",
         "messages": [{"role": "user", "content":
-            f"Generate ONE short, curiosity-driven YouTube finance topic for UK, Germany, France, Switzerland 2025.\n"
+            f"Generate ONE short, curiosity-driven YouTube finance topic for UK, Germany, France, Switzerland, Canada 2025.\n"
             f"Focus on creating a curiosity gap, avoiding overly dramatic clickbait. Max 58 characters.\n"
             f"Angle: {niche}\n"
             f"AVOID: {used_s}\n"
@@ -392,7 +391,7 @@ def generate_script_groq(topic, research_data=None):
         )
 
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
-    prompt  = f"""You are the most viral YouTube scriptwriter for high-income audiences in UK, Germany, France, Switzerland.
+    prompt  = f"""You are the most viral YouTube scriptwriter for high-income audiences in UK, Germany, France, Switzerland, Canada.
 
 Write a HYPNOTIC financial video script about: "{topic}"{trend_context}
 
@@ -402,7 +401,7 @@ ABSOLUTE RULES:
 3. NEVER write robotic filler phrases — banned
 4. First 5-10 seconds (first 2-3 sentences) MUST be a STRONG HOOK: a shocking statement or question that makes them stay till the end. Use a PATTERN INTERRUPT — devastating counter-intuitive fact with a specific number.
 5. Every 90-100 words end the paragraph with ONE curiosity tease sentence
-6. Use REAL European statistics — specific percentages, years, country names, cities
+6. Use REAL European/Canadian statistics — specific percentages, years, country names, cities
 7. Tone: analytical, authoritative, slightly conspiratorial — like revealing secrets
 8. Total: 950-1050 words of pure spoken content — ZERO stage directions, ZERO brackets
 
@@ -410,28 +409,27 @@ STRUCTURE:
 
 [STRONG HOOK / PATTERN INTERRUPT]
 One devastating ironic fact. Specific number. Specific country. Stops scrolling instantly.
-Example: "In 2024, the average German household saved 11 percent of its income. Yet 68 percent of those same Germans will retire with less money than they need to survive. The savings did not fail. The system they were saving into did."
 
 [DARK REVELATION — 120 words]
 Brutal specificity. Named institutions. Named cities. Real mechanisms. End with one curiosity hook sentence.
 
 [FIRST KEY INSIGHT — 150 words]
-Deep dive with European case study. Specific numbers. Real scenario. End with tease.
+Deep dive with European/Canadian case study. Specific numbers. Real scenario. End with tease.
 
 [SECOND KEY INSIGHT — 150 words]
-Hidden mechanism nobody explains. How the system works against Europeans. End with tease.
+Hidden mechanism nobody explains. How the system works against Europeans/Canadians. End with tease.
 
 [THIRD KEY INSIGHT — 150 words]
 Psychological dimension. Why people stay trapped. End with darkest tease.
 
 [WEALTH PSYCHOLOGY — 100 words]
-How wealthy Europeans think differently about the exact same situation.
+How wealthy people think differently about the exact same situation.
 
 [SOLUTION — 120 words]
 Three specific actionable steps. Name exact account types, strategies, platforms. Zero generic advice.
 
 [POWER OUTRO — 60 words]
-"If you are still watching, you already think differently from 95 percent of Europeans. Most people will watch this and do nothing. You are not most people. Press like — it takes one second and helps more Europeans find this truth. Subscribe — because tomorrow I am covering something that will make today look like a warm-up. I will see you there."
+"If you are still watching, you already think differently from 95 percent of people. Most people will watch this and do nothing. You are not most people. Press like — it takes one second and helps more people find this truth. Subscribe — because tomorrow I am covering something that will make today look like a warm-up. I will see you there."
 
 ---
 After the script write EXACTLY on new lines:
@@ -439,7 +437,7 @@ After the script write EXACTLY on new lines:
 BEST_TITLE: [max 58 chars — Short, curiosity-driven, e.g., '19-Year-Old Made $1M in a Day: How?']
 ALL_TITLES: [5 numbered options all using numbers, short, curiosity-driven]
 TAGS: [30 comma-separated YouTube SEO tags including country-specific ones]
-DESCRIPTION: [250 words: hook paragraph, What You Will Learn bullets, European CTA]
+DESCRIPTION: [250 words: hook paragraph, What You Will Learn bullets, European/Canadian CTA]
 THUMBNAIL: [2-3 ALL CAPS bold words, one clear focal point, high contrast, clean design, no special characters, must include a number if possible, e.g., '1M IN A DAY']
 SEARCH_TERMS: [12 specific Pexels terms: european financial scam, bank fraud investigation, young entrepreneur success, company bankruptcy, investment failure, crypto market crash, stock market manipulation, debt crisis europe, economic shockwave, wealth management secrets, tax evasion europe, financial loophole explained]"""
 
@@ -471,14 +469,14 @@ def parse_script(full_text):
 
     for line in lines:
         l = line.strip()
-    if l.startswith("BEST_TITLE:"):      in_meta = True;  meta['best_title'] = l.replace("BEST_TITLE:", "").strip()
-    elif l.startswith("ALL_TITLES:"):    meta['all_titles'] = l.replace("ALL_TITLES:", "").strip()
-    elif l.startswith("TAGS:"):          meta['tags'] = l.replace("TAGS:", "").strip()
-    elif l.startswith("DESCRIPTION:"):   meta['description'] = l.replace("DESCRIPTION:", "").strip()
-    elif l.startswith("THUMBNAIL:"):     meta['thumbnail'] = l.replace("THUMBNAIL:", "").strip()
-    elif l.startswith("SEARCH_TERMS:"):  meta['search_terms'] = l.replace("SEARCH_TERMS:", "").strip()
-    elif l.startswith("SEARCH_TERMS:"): meta["search_terms"] = l.replace("SEARCH_TERMS:","").strip()
-    elif not in_meta and l:
+        if   l.startswith("BEST_TITLE:"):   in_meta = True;  meta["best_title"]   = l.replace("BEST_TITLE:","").strip().strip('*[]"\'')
+        elif l.startswith("ALL_TITLES:"):   meta["all_titles"]   = l.replace("ALL_TITLES:","").strip()
+        elif l.startswith("TAGS:"):         meta["tags"]         = l.replace("TAGS:","").strip()
+        elif l.startswith("DESCRIPTION:"):  meta["description"]  = l.replace("DESCRIPTION:","").strip()
+        elif l.startswith("THUMBNAIL:"):
+            meta["thumbnail"] = l.replace("THUMBNAIL:","").strip().replace("*","").replace("[","").replace("]","").replace('"',"").strip()
+        elif l.startswith("SEARCH_TERMS:"): meta["search_terms"] = l.replace("SEARCH_TERMS:","").strip()
+        elif not in_meta and l:
             clean = re.sub(r'\[.*?\]', '', l).strip()
             if clean:
                 script_lines.append(clean)
@@ -493,16 +491,11 @@ def parse_script(full_text):
 # ════════════════════════════════════════
 def generate_audio(script, filename="audio.mp3"):
     print("🎙️ Generating news anchor voiceover (zero gaps)...")
-
-    # Clean script — remove any bracket markers
     clean = re.sub(r'\[.*?\]', '', script).strip()
-
-    # Split into sentences for natural pacing
     sentences = re.split(r'(?<=[.!?])\s+', clean)
     sentences = [s.strip() for s in sentences if s.strip()]
     print(f"  📝 {len(sentences)} sentences")
 
-    # Group into chunks of 6 sentences
     chunk_size = 6
     chunks     = []
     for i in range(0, len(sentences), chunk_size):
@@ -512,7 +505,6 @@ def generate_audio(script, filename="audio.mp3"):
     print(f"  🔊 {len(chunks)} chunks to process")
 
     temp_files = []
-
     segments = []
     for idx, chunk in enumerate(chunks):
         temp = f"chunk_{idx}.mp3"
@@ -520,26 +512,17 @@ def generate_audio(script, filename="audio.mp3"):
             tts = gTTS(text=chunk, lang="en", tld="co.uk", slow=False)
             tts.save(temp)
             seg = AudioSegment.from_mp3(temp)
-
-            # Normalize volume
             seg = normalize(seg)
-
-            # Slow down 7% for news anchor pace
             new_rate = int(seg.frame_rate * 0.93)
             seg      = seg._spawn(seg.raw_data, overrides={"frame_rate": new_rate})
             seg      = seg.set_frame_rate(44100)
-
-            # Warm low-pass filter
-            seg = seg.low_pass_filter(8000)
-
-            # Reduced natural breath pause after each chunk (from 100ms to 10ms)
-            pause = AudioSegment.silent(duration=10) # FIX VOICEOVER ISSUE: Reduced pause
+            seg      = seg.low_pass_filter(8000)
+            # Reduced pause to 10ms to fix the silence issue
+            pause = AudioSegment.silent(duration=10)
             seg   = seg + pause
-
             segments.append(seg)
             temp_files.append(temp)
             print(f"  ✅ Chunk {idx+1}/{len(chunks)}")
-
         except Exception as e:
             print(f"  ⚠️ Chunk {idx}: {e}")
 
@@ -548,28 +531,30 @@ def generate_audio(script, filename="audio.mp3"):
         final = segments[0]
         for seg in segments[1:]:
             final = final.append(seg, crossfade=25)
-
         final = normalize(final)
         final.export(filename, format="mp3", bitrate="192k", parameters=["-q:a", "0"])
-
         for f in temp_files:
             try: os.remove(f)
             except: pass
-
         duration = len(final) / 1000
         print(f"✅ Audio: {duration:.0f}s = {duration/60:.1f} min (ZERO GAPS)")
         return filename
 
-    # Fallback — single gTTS call if pydub failed
-    print("  ⚠️ pydub unavailable — single gTTS fallback")
+    print("  ⚠️ pydub merge failed — single gTTS fallback")
     tts = gTTS(text=clean, lang="en", tld="co.uk", slow=False)
     tts.save(filename)
-    print("✅ Audio ready (fallback)")
     return filename
 
 # ════════════════════════════════════════
 # PEXELS VIDEO FETCH
 # ════════════════════════════════════════
+def download_video(url, filename):
+    r = requests.get(url, timeout=90, stream=True)
+    with open(filename, "wb") as f:
+        for chunk in r.iter_content(chunk_size=8192):
+            f.write(chunk)
+    return filename
+
 def get_pexels_videos(search_terms_str, target_count=40, orientation="landscape"):
     print(f"🎬 Fetching {target_count} footage clips ({orientation})...")
     videos   = []
@@ -618,8 +603,7 @@ def get_pexels_videos(search_terms_str, target_count=40, orientation="landscape"
     return videos[:target_count]
 
 # ════════════════════════════════════════
-# THUMBNAIL — Professional 10-layer system
-# Black/Gold/Red — MrBeast finance style
+# THUMBNAIL
 # ════════════════════════════════════════
 def load_font(size):
     for path in [
@@ -627,7 +611,6 @@ def load_font(size):
         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
         "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
         "/usr/share/fonts/truetype/ubuntu/Ubuntu-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     ]:
         try:
             return ImageFont.truetype(path, size)
@@ -647,15 +630,10 @@ def draw_text_shadow(draw, pos, text, font, color, shadow=(0,0,0), offset=7):
 
 def create_thumbnail(thumbnail_text, title, filename="thumbnail.jpg", video_type="long"):
     print(f"🖼️ Creating professional thumbnail for {video_type} video...")
-    if video_type == "long":
-        W, H = 1280, 720
-    else: # Short
-        W, H = 1080, 1920
-
+    W, H = (1280, 720) if video_type == "long" else (1080, 1920)
     img  = Image.new("RGB", (W, H))
     draw = ImageDraw.Draw(img)
 
-    # Layer 1: Dark gradient background (black to very dark warm)
     for y in range(H):
         ratio = y / H
         r = int(10 + ratio * 20)
@@ -663,7 +641,6 @@ def create_thumbnail(thumbnail_text, title, filename="thumbnail.jpg", video_type
         b = int(8  + ratio * 15)
         draw.line([(0,y),(W,y)], fill=(r,g,b))
 
-    # Layer 2: Radial spotlight — center-left warmth
     cx, cy = int(W*0.40), int(H*0.40)
     for radius in range(min(W,H)//2, 0, -5):
         alpha = int(20 * (1 - radius/(min(W,H)//2)))
@@ -672,155 +649,65 @@ def create_thumbnail(thumbnail_text, title, filename="thumbnail.jpg", video_type
         bv = min(255, 8+alpha)
         draw.ellipse([cx-radius,cy-radius,cx+radius,cy+radius], fill=(rv,gv,bv))
 
-    # Layer 3: Subtle diagonal texture lines
-    for x in range(-200, W+200, 80):
-        draw.line([(x,0),(x+180,H)], fill=(25,18,0), width=1)
-
-    # Layer 4: LEFT GOLD BAR — thick, gradient (adjust for vertical)
     bar_width = 18 if video_type == "long" else 30
     for x in range(bar_width):
         gval = max(0, int(220 - x*7))
         rval = min(255, gval+35)
         draw.rectangle([x,0,x,H], fill=(rval, gval, 0))
 
-    # Layer 5: TOP RED STRIP (urgency bar)
-    strip_height = 6 if video_type == "long" else 10
-    for y in range(strip_height):
-        intensity = int(220 - y*15)
-        draw.line([(bar_width,y),(W,y)], fill=(intensity, 8, 8))
-
-    # Layer 6: Parse and render main text (max 2-3 bold words, one clear focal point)
     clean = thumbnail_text.upper().replace("*","").replace("[","").replace("]","").replace('"',"").strip()
-    words = clean.split()
+    words = clean.split()[:3]
+    if not words: words = ["FINANCE"]
+    lines = [words[0], " ".join(words[1:])] if len(words) > 1 else [words[0]]
 
-    # Ensure max 2-3 bold words
-    if len(words) > 3:
-        words = words[:3]
-    elif len(words) == 0:
-        words = ["FINANCE"]
-
-    lines = []
-    if len(words) == 1:
-        lines = [words[0]]
-    elif len(words) == 2:
-        lines = [words[0], words[1]]
-    else: # 3 words
-        lines = [words[0], words[1] + " " + words[2]] # Combine last two for better focal point
-
-    font_mega = load_font(180 if video_type == "short" else 118) # Larger for shorts
+    font_mega = load_font(180 if video_type == "short" else 118)
     font_xl   = load_font(120 if video_type == "short" else 90)
-    font_lg   = load_font(80 if video_type == "short" else 62)
     font_md   = load_font(50 if video_type == "short" else 38)
     font_sm   = load_font(35 if video_type == "short" else 28)
-    font_xs   = load_font(28 if video_type == "short" else 22)
 
     LEFT = 30 if video_type == "long" else 50
     y_pos = 55 if video_type == "long" else 150
+    if video_type == "short":
+        y_pos = (H - (300 if len(lines) > 1 else 180)) // 2
 
-    # Center text vertically for shorts if only one or two lines
-    if video_type == "short" and len(lines) <= 2:
-        total_text_height = 0
-        if len(lines) == 1:
-            total_text_height = font_mega.getbbox(lines[0])[3]
-        elif len(lines) == 2: # Assuming line 1 is mega, line 2 is xl
-            total_text_height = font_mega.getbbox(lines[0])[3] + font_xl.getbbox(lines[1])[3] + 50 # Add some spacing
-        y_pos = (H - total_text_height) // 2
-        if len(lines) == 2: # Adjust for combined line 2
-            y_pos -= 50 # Shift up slightly
-
-    # Line 1 — GOLD (number or shock word)
     if lines[0]:
-        draw_text_shadow(draw, (LEFT, y_pos), lines[0], font_mega,
-                         color=(255,215,0), shadow=(0,0,0), offset=9)
+        draw_text_shadow(draw, (LEFT, y_pos), lines[0], font_mega, color=(255,215,0), shadow=(0,0,0), offset=9)
         y_pos += (180 if video_type == "short" else 128)
-
-    # Line 2 — WHITE (context)
     if len(lines) > 1 and lines[1]:
-        draw_text_shadow(draw, (LEFT, y_pos), lines[1], font_xl,
-                         color=(255,255,255), shadow=(0,0,0), offset=7)
-        y_pos += (120 if video_type == "short" else 98)
+        draw_text_shadow(draw, (LEFT, y_pos), lines[1], font_xl, color=(255,255,255), shadow=(0,0,0), offset=7)
 
-    # Line 3 — BRIGHT RED (CTA or reveal - only if 3 words and combined)
-    if len(lines) > 2 and lines[2]:
-        draw_text_shadow(draw, (LEFT, y_pos), lines[2], font_lg,
-                         color=(255,55,55), shadow=(0,0,0), offset=5)
-
-    # Layer 7: Top-right shock badge (adjust position for vertical)
-    badge_text = "SHOCKING"
-    bw, bh     = (225, 52) if video_type == "long" else (300, 70)
-    bx, by     = (W - bw - 18, 18) if video_type == "long" else (W - bw - 30, 30)
-    draw.rectangle([bx+4,by+4,bx+bw+4,by+bh+4], fill=(0,0,0))
-    draw.rectangle([bx,by,bx+bw,by+bh], fill=(205,15,15))
-    draw.rectangle([bx,by,bx+bw,by+5], fill=(235,40,40))
-    draw.text((bx+12, by+10), badge_text, font=font_sm, fill=(255,255,255))
-
-    # Layer 8: BOTTOM CHANNEL STRIP (adjust for vertical)
     sy = H - (75 if video_type == "long" else 120)
-    for y in range(sy, H):
-        ratio = (y-sy)/(H-sy)
-        rv    = int(115 + ratio*90)
-        gv    = int(8   + ratio*5)
-        bv    = int(8   + ratio*5)
-        draw.line([(0,y),(W,y)], fill=(rv,gv,bv))
-
     draw.text((LEFT+6, sy+16), CHANNEL_NAME.upper(), font=font_md, fill=(255,235,200))
-
-    # Year pill (adjust for vertical)
-    pill_width = 128 if video_type == "long" else 180
-    pill_height = 65 if video_type == "long" else 90
-    draw.rectangle([W-pill_width,sy+8,W-12,H-10], fill=(0,0,0))
-    draw.text((W-pill_width+12, sy+14), "2025", font=font_md, fill=(255,215,0))
-
-    # Layer 9: Vignette (darkens edges for depth)
-    vignette = Image.new("RGBA", (W,H), (0,0,0,0))
-    vd = ImageDraw.Draw(vignette)
-    for i in range(min(W,H)//4):
-        vd.rectangle([i,i,W-i,H-i], outline=(0,0,0,int((i/(min(W,H)//4))**1.4 * 190)))
-    img = Image.alpha_composite(img.convert("RGBA"), vignette).convert("RGB")
-
-    # Layer 10: Final polish
-    img = ImageEnhance.Contrast(img).enhance(1.20)
-    img = ImageEnhance.Sharpness(img).enhance(1.30)
-    img = ImageEnhance.Color(img).enhance(1.15)
-
     img.save(filename, quality=97)
-    print(f"✅ Thumbnail: {filename}")
     return filename
 
 # ════════════════════════════════════════
-# VIDEO ASSEMBLY — 30-40 scenes @ 6s
+# VIDEO ASSEMBLY
 # ════════════════════════════════════════
 def create_video(audio_file, video_clips, title, output="final_video.mp4", video_type="long"):
     print(f"🎞️ Assembling {video_type} video...")
     audio     = AudioFileClip(audio_file)
     total_dur = audio.duration
+    if video_type == "short" and total_dur > 59:
+        total_dur = 59
+        audio = audio.subclip(0, total_dur)
+    
+    video_size = VIDEO_SIZE_SHORT if video_type == "short" else VIDEO_SIZE_LONG
+    target_scenes = max(int(total_dur / 2), 10) if video_type == "short" else max(int(total_dur / SCENE_DURATION), 30)
+    scene_dur = total_dur / target_scenes
 
-    if video_type == "short":
-        # Shorts should be under 60 seconds, ideally 30-59s
-        if total_dur > 59:
-            total_dur = 59 # Trim audio if too long for a short
-            audio = audio.subclip(0, total_dur)
-        print(f"⏱️ Short video duration: {total_dur:.0f}s")
-        target_scenes = max(int(total_dur / 2), 10) # More scenes for faster cuts in shorts
-        scene_dur     = total_dur / target_scenes
-        video_size    = VIDEO_SIZE_SHORT
-    else: # Long video
-        print(f"⏱️ Long video duration: {total_dur:.0f}s = {total_dur/60:.1f} min")
-        target_scenes = max(int(total_dur / SCENE_DURATION), 30)
-        scene_dur     = total_dur / target_scenes
-        video_size    = VIDEO_SIZE_LONG
-
-    print(f"🎬 {target_scenes} scenes @ {scene_dur:.1f}s each")
-
-    raw_clips  = []
+    raw_clips = []
     downloaded = []
-
     for i, vc in enumerate(video_clips[:target_scenes]):
-        fname = f"raw_{i}.mp4"
+        fname = f"raw_{video_type}_{i}.mp4"
         try:
-            print(f"  ⬇️ {i+1}/{min(len(video_clips),target_scenes)} [{vc.get('term','')}]")
             download_video(vc["url"], fname)
-            clip = VideoFileClip(fname).resized(video_size)
+            clip = VideoFileClip(fname).resize(height=video_size[1])
+            # Center crop
+            w, h = clip.size
+            target_w = video_size[0]
+            if w > target_w:
+                clip = clip.crop(x_center=w/2, width=target_w)
             raw_clips.append((clip, fname))
             downloaded.append(fname)
         except Exception as e:
@@ -832,47 +719,19 @@ def create_video(audio_file, video_clips, title, output="final_video.mp4", video
             src, _ = raw_clips[idx % len(raw_clips)]
             try:
                 max_start = max(0, src.duration - scene_dur - 0.5)
-                start     = random.uniform(0, max_start) if max_start > 0 else 0
-                if src.duration >= scene_dur:
-                    c = src.subclipped(start, start + scene_dur)
-                else:
-                    c = src.with_effects([vfx.Loop(duration=scene_dur)])
-                    c = c.subclipped(0, scene_dur)
-                zs = random.uniform(1.0, 1.02)
-                ze = zs + 0.018
-                c  = c.with_effects([
-                    vfx.Resize(lambda t, a=zs, b=ze, d=scene_dur: a+(b-a)*(t/d))
-                ])
-                if idx > 0:
-                    c = c.with_effects([vfx.FadeIn(0.12)])
+                start = random.uniform(0, max_start) if max_start > 0 else 0
+                c = src.subclip(start, start + scene_dur) if src.duration >= scene_dur else src.fx(vfx.loop, duration=scene_dur)
+                c = c.set_duration(scene_dur)
+                if idx > 0: c = c.crossfadein(0.2)
                 compiled.append(c)
-            except Exception as e:
-                print(f"  ⚠️ Scene {idx}: {e}")
+            except:
                 compiled.append(ColorClip(size=video_size, color=[10,6,6], duration=scene_dur))
     else:
         compiled = [ColorClip(size=video_size, color=[10,6,6], duration=total_dur)]
 
-    print("🔗 Concatenating scenes...")
     video = concatenate_videoclips(compiled, method="compose")
-    if video.duration < total_dur:
-        video = video.with_effects([vfx.Loop(duration=total_dur)])
-    video = video.subclipped(0, total_dur)
-    final = video.with_audio(audio)
-
-    try:
-        wm_font_size = 20 if video_type == "long" else 30
-        wm = (TextClip(text=CHANNEL_NAME, font_size=wm_font_size, color="white",
-                       font="/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
-              .with_opacity(0.45)
-              .with_position(("right","bottom"))
-              .with_duration(total_dur))
-        final = CompositeVideoClip([final, wm])
-    except Exception as e:
-        print(f"⚠️ Watermark skip: {e}")
-
-    print("💾 Rendering...")
-    final.write_videofile(output, fps=VIDEO_FPS, codec="libx264",
-                          audio_codec="aac", bitrate="3000k", logger=None)
+    video = video.set_duration(total_dur).set_audio(audio)
+    video.write_videofile(output, fps=VIDEO_FPS, codec="libx264", audio_codec="aac", bitrate="3000k", logger=None)
 
     for c,_ in raw_clips:
         try: c.close()
@@ -880,119 +739,38 @@ def create_video(audio_file, video_clips, title, output="final_video.mp4", video
     for f in downloaded:
         try: os.remove(f)
         except: pass
-
-    print(f"✅ Video: {output}")
     return output
 
 # ════════════════════════════════════════
 # METADATA
 # ════════════════════════════════════════
-def save_metadata(title, meta, topic, research_data=None, video_type="long"):
-    trend_info = ""
-    if research_data and research_data.get('raw_query'):
-        c_names = [TREND_COUNTRIES.get(c,c) for c in research_data.get('countries',[])]
-        trend_info = f"""
-{'═'*55}
-📈 GOOGLE TRENDS DATA:
-Raw Trend Query : {research_data.get('raw_query','')}
-Rising In       : {', '.join(c_names)}
-Trend Score     : {research_data.get('score',0)}
-Total Queries   : {research_data.get('total_found',0)}
-Cross-Country   : {research_data.get('common_found',0)}"""
-
-    content = f"""# VIDEO METADATA — {CHANNEL_NAME} ({video_type.upper()})
-Generated : {time.strftime('%Y-%m-%d %H:%M UTC')}
-Target    : {TARGET_MARKETS}
-{trend_info}
-
-{'═'*55}
-📌 TOPIC:
-{topic}
-
-{'═'*55}
-🏆 BEST TITLE — USE EXACTLY AS IS:
-{meta.get('best_title', title)}
-
-{'═'*55}
-📋 ALL TITLE OPTIONS:
-{meta.get('all_titles', '')}
-
-{'═'*55}
-🏷️ TAGS — COPY ALL 30:
-{meta.get('tags', '')}
-
-{'═'*55}
-📄 DESCRIPTION:
-{meta.get('description', '')}
-
-{'═'*55}
-🖼️ THUMBNAIL TEXT USED:
-{meta.get('thumbnail', '')}
-
-{'═'*55}
-⏰ UPLOAD TIME:
-Pakistan : 21:30 PKT (every day — same time)
-UK       : 17:00-17:30 BST
-
-{'═'*55}
-✅ UPLOAD CHECKLIST:
-[ ] Upload {video_type}_video.mp4
-[ ] Paste BEST TITLE exactly — do not change a single character
-[ ] Paste DESCRIPTION
-[ ] Paste TAGS
-[ ] Upload {video_type}_thumbnail.jpg
-[ ] Set visibility to Public
-[ ] Add to relevant playlist
-[ ] Add end screen and cards (long video only)
-[ ] Add to Shorts shelf (short video only)
-
-{'═'*55}
-💡 STRATEGY NOTES:
-- This video targets high-income audiences in UK, Germany, France, Switzerland.
-- The title and thumbnail are designed for maximum curiosity and click-through-rate.
-- The script is structured to maintain viewer engagement with pattern interrupts and curiosity hooks.
-- Ensure consistent upload times for audience retention.
-- For Shorts, the goal is to drive traffic to the main channel and long-form content.
-"""
-    with open(f"{video_type}_metadata.md", "w", encoding="utf-8") as f:
+def save_metadata(title, meta, topic, video_type="long"):
+    content = f"# {video_type.upper()} METADATA\nTITLE: {meta.get('best_title', title)}\nTOPIC: {topic}\nTAGS: {meta.get('tags', '')}\nDESC: {meta.get('description', '')}\n"
+    with open(f"{video_type}_metadata.txt", "w", encoding="utf-8") as f:
         f.write(content)
-    print(f"✅ Metadata saved: {video_type}_metadata.md")
 
 # ════════════════════════════════════════
-# MAIN WORKFLOW
+# MAIN
 # ════════════════════════════════════════
 def main():
-    # 1. Get Topic
     topic, research_data = get_topic()
-    print(f"Selected Topic: {topic}")
-
-    # 2. Generate Script
     full_script = generate_script_groq(topic, research_data)
     script, title, meta = parse_script(full_script)
 
-    # 3. Generate Audio
-    audio_file = generate_audio(script, filename="long_audio.mp3")
+    # Long Video
+    audio_long = generate_audio(script, filename="long_audio.mp3")
+    clips_long = get_pexels_videos(meta["search_terms"], orientation="landscape")
+    create_video(audio_long, clips_long, title, output="final_video.mp4", video_type="long")
+    create_thumbnail(meta["thumbnail"], title, filename="thumbnail.jpg", video_type="long")
+    save_metadata(title, meta, topic, video_type="long")
 
-    # 4. Get Pexels Videos
-    video_clips_long = get_pexels_videos(meta["search_terms"], orientation="landscape")
-
-    # 5. Create Long Video
-    long_video_file = create_video(audio_file, video_clips_long, title, output="long_video.mp4", video_type="long")
-    create_thumbnail(meta["thumbnail"], title, filename="long_thumbnail.jpg", video_type="long")
-    save_metadata(title, meta, topic, research_data, video_type="long")
-
-    # 6. Generate YouTube Short (using a condensed version of the script/audio)
-    print("\n🚀 Generating YouTube Short...")
-    # For the short, we'll take the first 30-50 seconds of the long video's script/audio
-    short_script_raw = " ".join(script.split()[:250]) # Approx 30-50 seconds of speech
-    short_audio_file = generate_audio(short_script_raw, filename="short_audio.mp3")
-
-    video_clips_short = get_pexels_videos(meta["search_terms"], target_count=20, orientation="portrait")
-    short_video_file = create_video(short_audio_file, video_clips_short, title, output="short_video.mp4", video_type="short")
+    # Short Video
+    short_script = " ".join(script.split()[:250])
+    audio_short = generate_audio(short_script, filename="short_audio.mp3")
+    clips_short = get_pexels_videos(meta["search_terms"], target_count=20, orientation="portrait")
+    create_video(audio_short, clips_short, title, output="short_video.mp4", video_type="short")
     create_thumbnail(meta["thumbnail"], title, filename="short_thumbnail.jpg", video_type="short")
-    save_metadata(title, meta, topic, research_data, video_type="short")
-
-    print("\n✨ YouTube Bot workflow completed! Both long video and short generated.")
+    save_metadata(title, meta, topic, video_type="short")
 
 if __name__ == "__main__":
     main()
