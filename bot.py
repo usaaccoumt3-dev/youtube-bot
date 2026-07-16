@@ -471,14 +471,14 @@ def parse_script(full_text):
 
     for line in lines:
         l = line.strip()
-                if l.startswith("BEST_TITLE:"):      in_meta = True;  meta['best_title'] = l.replace("BEST_TITLE:", "").strip()
-        elif l.startswith("ALL_TITLES:"):    meta['all_titles'] = l.replace("ALL_TITLES:", "").strip()
-        elif l.startswith("TAGS:"):          meta['tags'] = l.replace("TAGS:", "").strip()
-        elif l.startswith("DESCRIPTION:"):   meta['description'] = l.replace("DESCRIPTION:", "").strip()
-        elif l.startswith("THUMBNAIL:"):     meta['thumbnail'] = l.replace("THUMBNAIL:", "").strip()
-        elif l.startswith("SEARCH_TERMS:"):  meta['search_terms'] = l.replace("SEARCH_TERMS:", "").strip()
-        elif l.startswith("SEARCH_TERMS:"): meta["search_terms"] = l.replace("SEARCH_TERMS:","").strip()
-        elif not in_meta and l:
+    if l.startswith("BEST_TITLE:"):      in_meta = True;  meta['best_title'] = l.replace("BEST_TITLE:", "").strip()
+    elif l.startswith("ALL_TITLES:"):    meta['all_titles'] = l.replace("ALL_TITLES:", "").strip()
+    elif l.startswith("TAGS:"):          meta['tags'] = l.replace("TAGS:", "").strip()
+    elif l.startswith("DESCRIPTION:"):   meta['description'] = l.replace("DESCRIPTION:", "").strip()
+    elif l.startswith("THUMBNAIL:"):     meta['thumbnail'] = l.replace("THUMBNAIL:", "").strip()
+    elif l.startswith("SEARCH_TERMS:"):  meta['search_terms'] = l.replace("SEARCH_TERMS:", "").strip()
+    elif l.startswith("SEARCH_TERMS:"): meta["search_terms"] = l.replace("SEARCH_TERMS:","").strip()
+    elif not in_meta and l:
             clean = re.sub(r'\[.*?\]', '', l).strip()
             if clean:
                 script_lines.append(clean)
