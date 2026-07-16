@@ -1,6 +1,4 @@
-gtts
-pillow
 moviepy
-pytrends
+gTTS
 requests
-pydub
+google-generativeai
