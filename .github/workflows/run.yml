@@ -18,13 +18,12 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg espeak
 
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install moviepy google-generativeai gTTS requests
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install moviepy google-generativeai gTTS requests pyttsx3
 
       - name: Run Bot
         env:
