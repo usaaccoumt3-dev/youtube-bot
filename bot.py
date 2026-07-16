@@ -1,8 +1,7 @@
 import os, time, requests, random, re
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
-from PIL import Image
 if not hasattr(Image, 'ANTIALIAS'):
-Image.ANTIALIAS = Image.LANCZOS
+    Image.ANTIALIAS = Image.LANCZOS
 from moviepy.editor import *
 from moviepy.video.fx import all as vfx
 from pydub import AudioSegment
