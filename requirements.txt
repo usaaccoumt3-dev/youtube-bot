@@ -1,4 +1,13 @@
-moviepy
-gTTS
-requests
-google-generativeai
+moviepy==1.0.3
+gTTS==2.5.1
+pydub==0.25.1
+Pillow==10.3.0
+requests==2.31.0
+pytrends==4.8.0
+requests-cache==1.2.0
+urllib3==1.26.15
+decorator==4.4.2
+proglog==0.1.10
+imageio==2.34.1
+imageio-ffmpeg==0.4.9
+numpy==1.26.4
